@@ -28,14 +28,29 @@ namespace PuzzleSolver
             Console.WriteLine("Enter the puzzle:");
             int n = Convert.ToInt32(Math.Sqrt(blocks + 1));
             int[,] puzzle = new int[n,n];
+            int[] blankSpace = new int[2];
+            int counter = 0;
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    puzzle[i,j] = int.Parse(Console.ReadLine());
+                    puzzle[i,j] = int.Parse(Console.Read());
+                    if(counter == index)
+                    {
+                        blankSpace[0] = i;
+                        blankSpace[1] = j;
+                    }
+                    counter++;                   
                 }
             }
+            
+            if(intex == -1)
+            {
+                blankSpace[0] = n-1;
+                blankSpace[1] = n-1;
+            }
 
+            AStarSolver solver = new AStarSolver(blankSpace, puzzle, n);
 
         }
     }
