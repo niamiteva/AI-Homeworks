@@ -63,77 +63,67 @@ namespace AIPuzzleSolver
             Debug.WriteLine("Level:\n{1} => startNode: {0}", rootNode.ToString(), this.Level);
 
             rootNode.CalculateHeuristicOfTheState(this.goalState);
+            stateNodesInCurrenLevel.Enqueue(rootNode, rootNode.Heuristic + this.Level);
             solutionStateNodes.Add(rootNode);
             solutionStepsStringRepresentation.Add(rootNode.ToString());
+            
 
-            while (rootNode.Heuristic != 0)
+            //while (rootNode.Heuristic != 0 )
+            while(stateNodesInCurrenLevel.Count != 0)
             {
-                if(stateNodesInCurrenLevel.Count != 0)
-                {
-                    stateNodesInCurrenLevel = null; //empty the queue to add only the elements of the current level
-                }
+                //if (stateNodesInCurrenLevel.Count != 0)
+                //{
+                //    stateNodesInCurrenLevel = null; //empty the queue to add only the elements of the current level
+                //}
 
                 this.Level++;
                 StateNode current = rootNode;
-                stateNodesInCurrenLevel = ContructStateNodesInCurrentLevel(current);
+                //stateNodesInCurrenLevel = 
+                ContructStateNodesInCurrentLevel(current);
 
-                //var twoMinHeuristics = false;
-                //for (int i = 1; i < stateNodesInCurrenLevel.Count; i++)
-                //{
-                //    twoMinHeuristics = stateNodesInCurrenLevel.ElementAt(0).Heuristic == stateNodesInCurrenLevel.ElementAt(i).Heuristic;
-                //}
+                //if (stateNodesInCurrenLevel.Count <= 0) break;
 
                 rootNode = stateNodesInCurrenLevel.Dequeue();
-                //stateNodesInCurrenLevel.Remove(rootNode);
-
-                //if (twoMinHeuristics)
-                //{
-                    //foreach (var item in solutionStateNodes)
-                    //{
-                    //    if (item.ToString() == rootNode.ToString())
-                    //    {
-                    //        rootNode = stateNodesInCurrenLevel.Dequeue();
-                    //        //stateNodesInCurrenLevel.Remove(rootNode);
-                    //        break;
-                    //    }
-                    //}
-                //}
-                if(solutionStepsStringRepresentation.Count > 2 && solutionStepsStringRepresentation.ElementAt(solutionStepsStringRepresentation.Count-2) == rootNode.ToString())
-                {
-                    rootNode = stateNodesInCurrenLevel.Dequeue();
-                }
 
                 solutionStateNodes.Add(rootNode);
                 solutionStepsStringRepresentation.Add(rootNode.ToString());
 
-                Debug.WriteLine("solution step chosen:\nmatrix => {0} , cost => {1}, move => {2}", rootNode.ToString(), rootNode.Heuristic, rootNode.Move);
+                Debug.WriteLine("solution step chosen: matrix => \n{0} , cost => {1}, move => {2}", rootNode.ToString(), rootNode.Heuristic, rootNode.Move);
+
+                if (rootNode.Heuristic == 0)
+                {
+                    break;
+                }
             }
 
             PrintSolution();
             
         }
 
-        private SimplePriorityQueue<StateNode> ContructStateNodesInCurrentLevel(StateNode current)
+        //private SimplePriorityQueue<StateNode> ContructStateNodesInCurrentLevel(StateNode current)
+        private void ContructStateNodesInCurrentLevel(StateNode current)
         {
-            Debug.WriteLine("root:\nmatrix => {0} , heuristic => {1}", current.ToString(), current.Heuristic);
+            ///Debug.WriteLine("root:\nmatrix => {0} , heuristic => {1}", current.ToString(), current.Heuristic);
 
             StateNode newNode = null;
-            SimplePriorityQueue<StateNode> childNodes = new SimplePriorityQueue<StateNode>();
+            //SimplePriorityQueue<StateNode> childNodes = new SimplePriorityQueue<StateNode>();
             for (int i = 0; i < 4; i++)
             {
-                newNode = MakeMove(current.CurrentState, i, current.CurrentEmptySpace);   
-                if (newNode != null)
+                newNode = MakeMove(current.CurrentState, i, current.CurrentEmptySpace);
+                
+                if (newNode != null && !solutionStepsStringRepresentation.Contains(newNode.ToString()))
                 {
 
-                    Debug.WriteLine($"new move:\n{newNode.ToString()} => {newNode.Move}");
-
+                    //Debug.WriteLine($"new move:\n{newNode.ToString()} => {newNode.Move}");
                     newNode.CalculateHeuristicOfTheState(this.goalState);
+                    Debug.WriteLine("move: {0} => h = {1}", newNode.Move, newNode.Heuristic);
                     var cost = newNode.Heuristic + this.Level;
-                    childNodes.Enqueue(newNode,cost);
+                    //childNodes.Enqueue(newNode, cost);
+                    stateNodesInCurrenLevel.Enqueue(newNode, cost);
                 }
             }
 
-            return childNodes;
+            //return childNodes;
         }
 
         private StateNode MakeMove(int[,] root, int direction, int[] emptySpace)

@@ -66,7 +66,7 @@ namespace AIPuzzleSolver
             }
 
             this.Heuristic = result;
-            Debug.WriteLine("Current state heuristic {0}", this.Heuristic);
+            //Debug.WriteLine("Current state heuristic {0}", this.Heuristic);
         }
 
         private int[] IndexOfIn3DArray(int[,] matrix, int value)
