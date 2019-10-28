@@ -16,7 +16,7 @@ namespace AIPuzzleSolver
         public int RowsXCols { get; set; }
 
         private readonly int[,] goalState; //goal node to compare to
-        private SimplePriorityQueue<StateNode> stateNodesInCurrenLevel; //all possible movement from tha last state => we choose the next move
+        private SimplePriorityQueue<StateNode> PQStateNodes; //all possible movement from tha last state => we choose the next move
         private readonly List<StateNode> solutionStateNodes; //colects the movement for achieving the goal state
         private readonly List<string> solutionStepsStringRepresentation;
 
@@ -28,7 +28,7 @@ namespace AIPuzzleSolver
             Level = 0;
 
             goalState = new int[rowsXcols, rowsXcols];
-            stateNodesInCurrenLevel = new SimplePriorityQueue<StateNode>();
+            PQStateNodes = new SimplePriorityQueue<StateNode>();
             solutionStateNodes = new List<StateNode>();
             solutionStepsStringRepresentation = new List<string>();
 
@@ -39,16 +39,16 @@ namespace AIPuzzleSolver
         private void InitializeGoalState()
         {
             int value = 1;
-            for (int i = 0; i < this.RowsXCols; i++)
+            for (int i = 0; i < RowsXCols; i++)
             {
-                for (int j = 0; j < this.RowsXCols; j++)
+                for (int j = 0; j < RowsXCols; j++)
                 {
-                    if (i == this.GoalEmptySpace[0] && j == this.GoalEmptySpace[1])
+                    if (i == GoalEmptySpace[0] && j == GoalEmptySpace[1])
                     {
-                        this.goalState[i, j] = 0;
+                        goalState[i, j] = 0;
                         continue;
                     }
-                    this.goalState[i, j] = value;
+                    goalState[i, j] = value;
                     value++;
                 }
             }
@@ -57,103 +57,139 @@ namespace AIPuzzleSolver
         public void ExecuteAStar()
         {
             int[,] startState = new int[RowsXCols, RowsXCols];
-            Array.Copy(this.StartState, startState, StartState.Length);
-            var rootNode = new StateNode(startState, RowsXCols);
+            Array.Copy(StartState, startState, StartState.Length);
 
-            Debug.WriteLine("Level:\n{1} => startNode: {0}", rootNode.ToString(), this.Level);
+            var rootNode = new StateNode(startState, RowsXCols,0,string.Empty, new List<string>(), goalState);
 
-            rootNode.CalculateHeuristicOfTheState(this.goalState);
-            stateNodesInCurrenLevel.Enqueue(rootNode, rootNode.Heuristic);
-            solutionStateNodes.Add(rootNode);
-            solutionStepsStringRepresentation.Add(rootNode.ToString());
+            Debug.WriteLine("Level:\n{1} => startNode: {0}", rootNode.ToString(), rootNode.Level);
+
+            rootNode.CalculateHeuristicOfTheState(goalState);
+            var limit = rootNode.Cost;
+            List<int> limitCollection = new List<int>();
             
-            while(stateNodesInCurrenLevel.Count != 0)
+            while (true)
             {
-                
-                this.Level++;
-                StateNode current = rootNode;
-                ContructStateNodesInCurrentLevel(current);
-                
-                rootNode = stateNodesInCurrenLevel.Dequeue();
-
-                solutionStateNodes.Add(rootNode);
-                solutionStepsStringRepresentation.Add(rootNode.ToString());
-
-                Debug.WriteLine("solution step chosen: matrix => \n{0} , cost => {1}, move => {2}", rootNode.ToString(), rootNode.Heuristic, rootNode.Move);
-
-                if (rootNode.Heuristic == 0)
+               
+                PQStateNodes.Enqueue(rootNode, rootNode.Cost);
+                while (PQStateNodes.Count != 0)
                 {
-                    break;
+
+                    StateNode bestStep = PQStateNodes.Dequeue();
+                    
+                    Debug.WriteLine("solution step chosen: matrix => \n{0} , cost => {1}, move => {2}", bestStep.ToString(), bestStep.Heuristic, bestStep.Move);
+
+                    foreach (var child in ContructStateNodesInCurrentLevel(bestStep))
+                    {
+
+                        if (child.Heuristic == 0)
+                        {
+
+                            Console.WriteLine(child.Level);
+                            foreach (var move in child.Path)
+                            {
+                                Console.WriteLine(move);
+                            }
+
+                            return;
+                        }
+                        
+                        if (child.Cost <= limit)
+                        {
+                            PQStateNodes.Enqueue(child, child.Cost);
+                        }
+                        else
+                        {
+                            limitCollection.Add(child.Cost);
+                        }
+                    }
+
+                }
+
+                if (limitCollection.Count > 0)
+                {
+                    limit = limitCollection.Min();
+                    limitCollection.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("No solution!");
+                    return;
                 }
             }
-
-            PrintSolution();
             
         }
-        
-        private void ContructStateNodesInCurrentLevel(StateNode current)
+
+        private List<StateNode> ContructStateNodesInCurrentLevel(StateNode current)
         {
 
             StateNode newNode = null;
+            List<StateNode> children = new List<StateNode>();
             for (int i = 0; i < 4; i++)
             {
-                newNode = MakeMove(current.CurrentState, i, current.CurrentEmptySpace);
-                
-                if (newNode != null && !solutionStepsStringRepresentation.Contains(newNode.ToString()))
+                newNode = MakeMove(current, i);
+
+                if (newNode != null)
                 {
-                   
-                    newNode.CalculateHeuristicOfTheState(this.goalState);
+                    
                     Debug.WriteLine("move: {0} => h = {1}", newNode.Move, newNode.Heuristic);
-                    var cost = newNode.Heuristic + this.Level;
-                    stateNodesInCurrenLevel.Enqueue(newNode, cost);
+
+                    children.Add(newNode);
                 }
             }
-            
+
+            return children;
         }
 
-        private StateNode MakeMove(int[,] root, int direction, int[] emptySpace)
-        {
-            int[,] node = new int[RowsXCols,RowsXCols];
-            Array.Copy(root, node, root.Length);
-            StateNode resultNode = null;
 
-            if(direction == 0 && emptySpace[0] != 0)
+        private StateNode MakeMove(StateNode current, int direction)
+        {
+            int[,] node = new int[RowsXCols, RowsXCols];
+            Array.Copy(current.CurrentState, node, current.CurrentState.Length);
+            int[] emptySpace = current.CurrentEmptySpace;
+
+            StateNode newNode = null;
+
+            if (direction == 0 && emptySpace[0] > 0)
             {
                 //up (down actually)
                 SwapValues(new int[2] { (emptySpace[0] - 1), emptySpace[1] }, new int[2] { emptySpace[0], emptySpace[1] }, node);
-                resultNode = new StateNode(node, this.RowsXCols);
-                resultNode.SetMove("Down");
+                List<string> newRoad = current.Path.GetRange(0, current.Path.Count);
+                newRoad.Add("Down");
+                newNode = new StateNode(node, RowsXCols, current.Level + 1, "Down", newRoad, goalState);
             }
-            else if(direction == 1 && emptySpace[1] != this.RowsXCols-1)
+            else if (direction == 1 && emptySpace[1] < RowsXCols - 1)
             {
                 //right (left actually)
                 SwapValues(new int[2] { emptySpace[0], (emptySpace[1] + 1) }, new int[2] { emptySpace[0], emptySpace[1] }, node);
-                resultNode = new StateNode(node, this.RowsXCols);
-                resultNode.SetMove("Left");
+                List<string> newRoad = current.Path.GetRange(0, current.Path.Count);
+                newRoad.Add("Left");
+                newNode = new StateNode(node, RowsXCols, current.Level + 1, "Left", newRoad, goalState);
             }
-            else if (direction == 2 && emptySpace[0] != this.RowsXCols-1)
+            else if (direction == 2 && emptySpace[0] < RowsXCols - 1)
             {
                 //down (up actually)
                 SwapValues(new int[2] { (emptySpace[0] + 1), emptySpace[1] }, new int[2] { emptySpace[0], emptySpace[1] }, node);
-                resultNode = new StateNode(node, this.RowsXCols);
-                resultNode.SetMove("Up");
+                List<string> newRoad = current.Path.GetRange(0, current.Path.Count);
+                newRoad.Add("Up");
+                newNode = new StateNode(node, RowsXCols, current.Level + 1, "Up", newRoad, goalState);
             }
-            else if (direction == 3 && emptySpace[1] != 0)
+            else if (direction == 3 && emptySpace[1] > 0)
             {
                 //left (right actually)
-                SwapValues(new int[2] { emptySpace[0], (emptySpace[1] -1 )}, new int[2] { emptySpace[0], emptySpace[1] }, node);
-                resultNode = new StateNode(node, this.RowsXCols);
-                resultNode.SetMove("Right");
+                SwapValues(new int[2] { emptySpace[0], (emptySpace[1] - 1) }, new int[2] { emptySpace[0], emptySpace[1] }, node);
+                List<string> newRoad = current.Path.GetRange(0, current.Path.Count);
+                newRoad.Add("Right");
+                newNode = new StateNode(node, this.RowsXCols, current.Level + 1, "Right", newRoad, goalState);
             }
 
-            return resultNode;
+            return newNode;
         }
 
         private void SwapValues(int[] num, int[] blank, int[,] node)
         {
-            int temp = node[num[0], num[1]];
-            node[num[0], num[1]] = node[blank[0], blank[1]];
-            node[blank[0], blank[1]] = temp;
+            //int temp = node[num[0], num[1]];
+            node[blank[0], blank[1]] = node[num[0], num[1]];
+            node[num[0], num[1]] = 0;
         }
 
         private void PrintSolution()
@@ -164,19 +200,7 @@ namespace AIPuzzleSolver
             {
                 Console.WriteLine(item.Move + "\n");
             }
-
-            foreach (var item in this.solutionStepsStringRepresentation)
-            {
-                Console.WriteLine(item);
-                if(this.solutionStepsStringRepresentation.Last() != item)
-                {
-                    for (int i = 0; i < this.RowsXCols; i++)
-                    {
-                        Console.Write(" ");
-                    }
-                    Console.WriteLine("\n=>\n");
-                }
-            }
+            
         }
     }
 }
