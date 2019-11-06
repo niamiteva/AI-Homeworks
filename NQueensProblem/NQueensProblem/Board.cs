@@ -1,36 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IRAPuzzleSolver
 {
     public class Board
     {
-        private int Size { get; set; }
-
-        private int[] QueensPositions { get; set; }
-        private int[] QueensInCol { get; set; }
-        private int[] QueensInMainDiagonal { get; set; }
-        private int[] QueensInSecondaryDiagonal { get; set; }
-        //private int[] QueensConflicts { get; set; }
-        private int QueensConflicts { get; set; }
-        //private int Restatrts { get; set; }
-        //private int Moves { get; set; }
-
+        private readonly int size;
+        private readonly int[] queensPositions;
+        private readonly int[] queensInCol;
+        private readonly int[] queensInMainDiagonal;
+        private readonly int[] queensInSecondaryDiagonal;
+        private int queensConflicts;
+        private readonly Random randomIndex;
+       
 
         public Board(int size)
         {
-            Size = size;
-            QueensPositions = new int[size];
-            QueensInCol = new int[size];
-            QueensInMainDiagonal = new int[size*2];
-            QueensInSecondaryDiagonal = new int[size*2];
-            QueensConflicts = 0;
-            //Restatrts = 0;
-            //Moves = 0;
-            //QueensConflicts = new int[size];
+            this.size = size;
+            queensPositions = new int[size];
+            queensInCol = new int[size];
+            queensInMainDiagonal = new int[size * 2];
+            queensInSecondaryDiagonal = new int[size * 2];
+            queensConflicts = 0;
+            randomIndex = new Random();
         }
 
         public void ExecuteIterativeRepairAlgorithm()
@@ -41,29 +34,27 @@ namespace IRAPuzzleSolver
             int restarts = 0;
 
             while (true)
-            {   
+            {
                 int maxConflictsQueenIndex = GetMaxConflictsQueenIndex();
 
-                int sum = QueensConflicts;
-                //int sum = SumAllQueensConflicts();
+                int sum = queensConflicts;
                 if (sum == 0)
                 {
-                    //QueensPositions.ToString();
                     Console.WriteLine($"Restarts: {restarts}\nMoves: {moves}");
                     return;
                 }
 
                 int minConflictsQueenIndex = GetMinConflictsQueenIndex(maxConflictsQueenIndex);
 
-                int oldPosition = QueensPositions[maxConflictsQueenIndex];
+                int oldPosition = queensPositions[maxConflictsQueenIndex];
                 int newPosition = minConflictsQueenIndex;
 
                 if (newPosition != oldPosition)
                 {
-                    QueensPositions[maxConflictsQueenIndex] = newPosition;
+                    queensPositions[maxConflictsQueenIndex] = newPosition;
 
-                    QueensInCol[oldPosition] -= 1;
-                    QueensInCol[newPosition] += 1;
+                    queensInCol[oldPosition] -= 1;
+                    queensInCol[newPosition] += 1;
 
                     MarkPositionMainDiagonal(oldPosition, maxConflictsQueenIndex, -1);
                     MarkPositionMainDiagonal(newPosition, maxConflictsQueenIndex, 1);
@@ -75,7 +66,7 @@ namespace IRAPuzzleSolver
                 }
 
                 iterations++;
-                if(iterations == Size * 2)
+                if (iterations == 100)
                 {
                     GenerateRandomBoard();
                     iterations = 0;
@@ -89,27 +80,24 @@ namespace IRAPuzzleSolver
         {
             ClearBoard();
 
-            Random rnd = new Random();
-
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < size; i++)
             {
-                //QueensPositions[i] = rnd.Next(0, Size);
-                QueensPositions[i] = GetMinConflictsQueenIndex(i);
-                QueensInCol[QueensPositions[i]] += 1;
+                queensPositions[i] = GetMinConflictsQueenIndex(i);
+                queensInCol[queensPositions[i]] += 1;
 
-                MarkPositionMainDiagonal(QueensPositions[i], i, 1);
-                MarkPositionInSecondaryDiagonal(QueensPositions[i], i, 1);
+                MarkPositionMainDiagonal(queensPositions[i], i, 1);
+                MarkPositionInSecondaryDiagonal(queensPositions[i], i, 1);
             }
         }
 
         private void ClearBoard()
         {
-            for (int i = 0; i < Size*2 -1; i++)
+            for (int i = 0; i < size * 2 - 1; i++)
             {
-                QueensInMainDiagonal[i] = 0;
-                QueensInSecondaryDiagonal[i] = 0;
+                queensInMainDiagonal[i] = 0;
+                queensInSecondaryDiagonal[i] = 0;
 
-                if(i < Size) QueensInCol[i] = 0;
+                if (i < size) queensInCol[i] = 0;
             }
         }
 
@@ -117,37 +105,37 @@ namespace IRAPuzzleSolver
         {
             if (queenRowIndex <= queenColIndex)
             {
-                QueensInMainDiagonal[Size -1 - Math.Abs(queenRowIndex - queenColIndex)] += value;
+                queensInMainDiagonal[size - 1 - Math.Abs(queenRowIndex - queenColIndex)] += value;
             }
             else
             {
-                QueensInMainDiagonal[Size - 1 + Math.Abs(queenRowIndex - queenColIndex)] += value;
+                queensInMainDiagonal[size - 1 + Math.Abs(queenRowIndex - queenColIndex)] += value;
             }
         }
 
         private void MarkPositionInSecondaryDiagonal(int queenColIndex, int queenRowIndex, int value)
         {
-            QueensInSecondaryDiagonal[queenColIndex + queenRowIndex] += value;
+            queensInSecondaryDiagonal[queenColIndex + queenRowIndex] += value;
         }
-        
-        
+
+
         private int CalculateNumberOfQueensConflicts(int col, int row)
         {
-            int occupiedPositionConflicts = QueensPositions[row] == col ? 3 : 0; // is position occupied by queen => remove 1 digit for every queen direction (3)
+            int occupiedPositionConflicts = queensPositions[row] == col ? 3 : 0; // is position occupied by queen => remove 1 digit for every queen direction (3)
 
             int mainDiagonalIndex = 0;
-            if(row <= col)
+            if (row <= col)
             {
-                mainDiagonalIndex = Size - 1 - Math.Abs(row - col);
+                mainDiagonalIndex = size - 1 - Math.Abs(row - col);
             }
             else
             {
-                mainDiagonalIndex = Size - 1 + Math.Abs(row - col);
+                mainDiagonalIndex = size - 1 + Math.Abs(row - col);
             }
 
             int secondaryDiagonalIndex = col + row;
 
-            int result = QueensInCol[col] + QueensInMainDiagonal[mainDiagonalIndex] + QueensInSecondaryDiagonal[secondaryDiagonalIndex];
+            int result = queensInCol[col] + queensInMainDiagonal[mainDiagonalIndex] + queensInSecondaryDiagonal[secondaryDiagonalIndex];
             if (result >= 3)
             {
                 result -= occupiedPositionConflicts;
@@ -160,10 +148,10 @@ namespace IRAPuzzleSolver
         {
             List<int> maxCandidates = new List<int>();
             int maxConflicts = 0;
-            QueensConflicts = 0;
-            for (int row = 0; row < Size; row++)
+            queensConflicts = 0;
+            for (int row = 0; row < size; row++)
             {
-                int numberOfConflicts = CalculateNumberOfQueensConflicts(QueensPositions[row], row);
+                int numberOfConflicts = CalculateNumberOfQueensConflicts(queensPositions[row], row);
                 if (numberOfConflicts == maxConflicts)
                 {
                     maxCandidates.Add(row);
@@ -171,22 +159,20 @@ namespace IRAPuzzleSolver
                 else if (numberOfConflicts > maxConflicts)
                 {
                     maxConflicts = numberOfConflicts;
-                    QueensConflicts = maxConflicts;
+                    queensConflicts = maxConflicts;
                     maxCandidates.Clear();
                     maxCandidates.Add(row);
                 }
             }
-
-            Random rnd = new Random();
-
-            return maxCandidates.ElementAt(rnd.Next(0, maxCandidates.Count));
+            
+            return maxCandidates[randomIndex.Next(0, maxCandidates.Count)];
         }
 
         private int GetMinConflictsQueenIndex(int row)
         {
             List<int> minCandidates = new List<int>();
-            int minConflicts = Size;
-            for (int col = 0; col < Size; col++)
+            int minConflicts = size;
+            for (int col = 0; col < size; col++)
             {
                 int numberOfConflicts = CalculateNumberOfQueensConflicts(col, row);
 
@@ -201,26 +187,24 @@ namespace IRAPuzzleSolver
                     minCandidates.Add(col);
                 }
             }
-
-            Random rnd = new Random();
-
-            return minCandidates.ElementAt(rnd.Next(0, minCandidates.Count));
+            
+            return minCandidates[randomIndex.Next(0, minCandidates.Count)];
         }
 
         public override string ToString()
         {
             StringBuilder solution = new StringBuilder();
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < size; j++)
                 {
-                    if (QueensPositions[i] != j)
+                    if (queensPositions[i] != j)
                     {
-                       solution.Append(j == Size - 1 ? "_\n" : "_");
+                        solution.Append(j == size - 1 ? "_\n" : "_");
                     }
                     else
                     {
-                        solution.Append(j == Size - 1 ? "*\n" : "*");
+                        solution.Append(j == size - 1 ? "*\n" : "*");
                     }
                 }
             }
