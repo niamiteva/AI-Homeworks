@@ -61,22 +61,21 @@ namespace AIPuzzleSolver
 
             var rootNode = new StateNode(startState, RowsXCols,0,string.Empty, new List<string>(), goalState);
 
-            Debug.WriteLine("Level:\n{1} => startNode: {0}", rootNode.ToString(), rootNode.Level);
+            //Debug.WriteLine("Level:\n{1} => startNode: {0}", rootNode.ToString(), rootNode.Level);
 
             rootNode.CalculateHeuristicOfTheState(goalState);
             var limit = rootNode.Cost;
-            List<int> limitCollection = new List<int>();
             
             while (true)
             {
-               
+                Console.WriteLine($"Threshold: {limit}");
                 PQStateNodes.Enqueue(rootNode, rootNode.Cost);
                 while (PQStateNodes.Count != 0)
                 {
 
                     StateNode bestStep = PQStateNodes.Dequeue();
                     
-                    Debug.WriteLine("solution step chosen: matrix => \n{0} , cost => {1}, move => {2}", bestStep.ToString(), bestStep.Heuristic, bestStep.Move);
+                    //Debug.WriteLine("solution step chosen: matrix => \n{0} , cost => {1}, move => {2}", bestStep.ToString(), bestStep.Heuristic, bestStep.Move);
 
                     foreach (var child in ContructStateNodesInCurrentLevel(bestStep))
                     {
@@ -97,24 +96,11 @@ namespace AIPuzzleSolver
                         {
                             PQStateNodes.Enqueue(child, child.Cost);
                         }
-                        else
-                        {
-                            limitCollection.Add(child.Cost);
-                        }
                     }
 
                 }
 
-                if (limitCollection.Count > 0)
-                {
-                    limit = limitCollection.Min();
-                    limitCollection.Clear();
-                }
-                else
-                {
-                    Console.WriteLine("No solution!");
-                    return;
-                }
+                limit += 2;
             }
             
         }
@@ -131,7 +117,7 @@ namespace AIPuzzleSolver
                 if (newNode != null)
                 {
                     
-                    Debug.WriteLine("move: {0} => h = {1}", newNode.Move, newNode.Heuristic);
+                    //Debug.WriteLine("move: {0} => h = {1}", newNode.Move, newNode.Heuristic);
 
                     children.Add(newNode);
                 }

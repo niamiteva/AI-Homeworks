@@ -49,7 +49,7 @@ namespace IRAPuzzleSolver
                 int oldPosition = queensPositions[maxConflictsQueenIndex];
                 int newPosition = minConflictsQueenIndex;
 
-                if (newPosition != oldPosition)
+                if (newPosition != oldPosition && newPosition != -1)
                 {
                     queensPositions[maxConflictsQueenIndex] = newPosition;
 
@@ -66,7 +66,7 @@ namespace IRAPuzzleSolver
                 }
 
                 iterations++;
-                if (iterations == 100)
+                if (iterations == 100 || newPosition == -1)
                 {
                     GenerateRandomBoard();
                     iterations = 0;
@@ -164,7 +164,7 @@ namespace IRAPuzzleSolver
                     maxCandidates.Add(row);
                 }
             }
-            
+
             return maxCandidates[randomIndex.Next(0, maxCandidates.Count)];
         }
 
@@ -186,6 +186,12 @@ namespace IRAPuzzleSolver
                     minCandidates.Clear();
                     minCandidates.Add(col);
                 }
+            }
+
+            //the row with max conflicts has no min conflicts => we have no option to move the queen => restart
+            if(minCandidates.Count == size-1)
+            {
+                return -1;
             }
             
             return minCandidates[randomIndex.Next(0, minCandidates.Count)];
