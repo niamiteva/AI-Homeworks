@@ -15,13 +15,15 @@ namespace TravelingSalesmanGA
             PopulationSize = popSize;
         }
 
-        public void InitialisePopulation(int numberOfCities)
+        public void InitialiseFirstPopulation(int numberOfCities)
         {
             Individual firstParent = new Individual(numberOfCities);
+            City[] parentRoute = new City[firstParent.RouteSize];
+            firstParent.Route.CopyTo(parentRoute);
 
             for (int i = 0; i < PopulationSize; i++)
             {
-                Individual newRoute = new Individual(firstParent.Route);
+                Individual newRoute = new Individual(parentRoute);
                 Individuals[i] = newRoute;
             }
         }
@@ -40,10 +42,11 @@ namespace TravelingSalesmanGA
         public Individual GetFittest()
         {
             Individual fittest = Individuals[0];
+            fittest.GetRouteFitness();
 
             for (int i = 1; i < PopulationSize; i++)
             {
-                if (fittest.DistanceFitness <= GetInduvidualAtIndex(i).DistanceFitness)
+                if (fittest.GetRouteFitness() >= GetInduvidualAtIndex(i).GetRouteFitness())
                 {
                     fittest = GetInduvidualAtIndex(i);
                 }

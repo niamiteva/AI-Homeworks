@@ -30,11 +30,5 @@ namespace TravelingSalesmanGA
 
             return Convert.ToInt32(Math.Sqrt((a * a) + (b * b)));
         }
-
-        //TODO:
-        public override string ToString()
-        {
-            return base.ToString();
-        }
     }
 }

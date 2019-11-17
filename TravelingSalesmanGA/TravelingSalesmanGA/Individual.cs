@@ -15,13 +15,7 @@ namespace TravelingSalesmanGA
             Route = new List<City>();
         }
 
-        public Individual(List<City> route)
-        {
-            Route = ShuffleList(route);
-            RouteSize = route.Count;
-            DistanceFitness = 0;
-        }
-
+        //cities coordinates initialization
         public Individual(int numberOfCities)
         {
             RouteSize = numberOfCities;
@@ -36,23 +30,48 @@ namespace TravelingSalesmanGA
             DistanceFitness = GetRouteFitness();
         }
 
-        private List<City> ShuffleList(List<City> inputList)
+        //individual initialization
+        public Individual(City[] route)
+        {
+            Route = ShuffleList(route);
+            RouteSize = route.Length;
+            DistanceFitness = 0;
+        }
+
+        public Individual(Individual parent)
+        {
+            RouteSize = parent.RouteSize;
+            Route = new List<City>(parent.RouteSize);
+            for (int i = 0; i < parent.RouteSize; i++)
+            {
+                Route.Add(null);
+            }
+        }
+
+        private List<City> ShuffleList(City[] givenRoute)
         {
             List<City> randomList = new List<City>();
+            List<City> route = new List<City>(givenRoute); 
 
             Random r = new Random();
             int randomIndex = 0;
-            while (inputList.Count > 0)
+
+            while (route.Count > 0)
             {
-                randomIndex = r.Next(0, inputList.Count); 
-                randomList.Add(inputList[randomIndex]); 
-                inputList.RemoveAt(randomIndex); 
+                randomIndex = r.Next(0, route.Count); 
+                randomList.Add(route[randomIndex]); 
+                route.RemoveAt(randomIndex); 
             }
 
             return randomList; 
         }
 
-        private int GetRouteFitness()
+        public bool ContainsCity(City city)
+        {
+            return Route.Contains(city);
+        }
+
+        public int GetRouteFitness()
         {
             if (DistanceFitness == 0)
             {
@@ -81,11 +100,6 @@ namespace TravelingSalesmanGA
             return DistanceFitness;
         }
 
-        public bool ContainsCity(City city)
-        {
-            return Route.Contains(city);
-        }
-
         public City GetCityAtIndex(int index)
         {
             return Route[index];
@@ -95,11 +109,18 @@ namespace TravelingSalesmanGA
         {
             Route[index] = city;
         }
+        
+        public override string ToString()
+        {
+            StringBuilder str = new StringBuilder();
+            str.Append("|");
 
-        //public City GetCityAtIndex(int index)
-        //TODO: setCityAtIndex(int index, city)
-        //TODO: generateIndividual ???
+            for (int i = 0; i < RouteSize; i++)
+            {
+                str.Append(GetCityAtIndex(i).X.ToString() + "|" + GetCityAtIndex(i).Y.ToString() + "|");
+            }
 
-        //TODO ToString()
+            return str.ToString();
+        }
     }
 }
