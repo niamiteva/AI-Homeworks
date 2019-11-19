@@ -6,15 +6,13 @@ namespace TravelingSalesmanGA
     {
         static void Main(string[] args)
         {
-            // Initialize population
-            int numberOfCities = 500;
+            int numberOfCities = 100;
             int populationSize = numberOfCities*3; //number of individuals in the population
             Population curentPopulation = new Population(populationSize);
             curentPopulation.InitialiseFirstPopulation(numberOfCities);
 
             Console.WriteLine("Initial distance: " + curentPopulation.GetFittest().DistanceFitness);
-
-            // Evolve population for 100 generations
+            
             Random r = new Random();
             int secondPrint = r.Next(15, (numberOfCities * 5) / 3);
             int thirdPrint = r.Next((numberOfCities * 5) / 3, (numberOfCities * 5) / 2);
@@ -46,8 +44,8 @@ namespace TravelingSalesmanGA
 
                 curentPopulation = GeneticAlgorithm.EvolvePopulation(curentPopulation);
             }
-
-            // Print final results
+            
+        
             Console.WriteLine("Final distance: " + curentPopulation.GetFittest().DistanceFitness);
             Console.WriteLine("Solution:");
             Console.WriteLine(curentPopulation.GetFittest().ToString());

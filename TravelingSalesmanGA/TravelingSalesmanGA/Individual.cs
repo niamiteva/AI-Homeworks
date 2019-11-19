@@ -38,6 +38,7 @@ namespace TravelingSalesmanGA
             DistanceFitness = 0;
         }
 
+        //child individual creattion
         public Individual(Individual parent)
         {
             RouteSize = parent.RouteSize;
@@ -113,12 +114,14 @@ namespace TravelingSalesmanGA
         public override string ToString()
         {
             StringBuilder str = new StringBuilder();
-            str.Append("|");
+            str.Append("{");
 
             for (int i = 0; i < RouteSize; i++)
             {
-                str.Append(GetCityAtIndex(i).X.ToString() + "|" + GetCityAtIndex(i).Y.ToString() + "|");
+                str.Append(" ( " + GetCityAtIndex(i).X.ToString() + "|" + GetCityAtIndex(i).Y.ToString() + " )");
             }
+
+            str.Append("}");
 
             return str.ToString();
         }
