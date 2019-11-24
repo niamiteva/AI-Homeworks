@@ -45,6 +45,7 @@ namespace TicTacToeAI
             //if (depth == 0 || IsGameOver())
             {
                 score = CurrentState.CalculateScore();
+                //score = CurrentState.Evaluate(depth);
                 return new int[] { score, bestRow, bestCol };
             }
             else

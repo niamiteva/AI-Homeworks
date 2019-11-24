@@ -34,12 +34,56 @@ namespace TicTacToeAI
             //CalculateScore(); //heuristic
         }
 
+        public int Evaluate(int depth)
+        {
+            // Check rows for victory
+            for (int row = 0; row< 3; row++)
+            {
+                if (Cells[row, 0].Content != '.' && AllValuesInRowAreEqual(row))
+                {
+                    char valueInRow = Cells[row, 0].Content;
+
+                    if (valueInRow == 'X')
+                        return 100 - depth;
+                    else if (valueInRow == 'O')
+                        return -(100 - depth);
+                }
+            }
+
+            // Check columns for victory
+            for (int col = 0; col< 3; col++)
+            {
+                if (Cells[0, col].Content != '.' && AllValuesInColAreEqual(col))
+                {
+                    char valueInColumn = Cells[0, col].Content;
+
+                    if (valueInColumn == 'X')
+                        return 100 - depth;
+                    else if (valueInColumn == 'O')
+                        return -(100 - depth);
+                }
+            }
+
+            // Check diagonals for victory
+            if (Cells[1, 1].Content != '.' && AllValuesInPrimeDiagonalAreEqual() || AllValuesInSecondDiagonalAreEqual())
+            {
+                int valueInDiagonal = Cells[1, 1].Content;
+                if (valueInDiagonal == 'X')
+                    return 100 - depth;
+                else if (valueInDiagonal == 'O')
+                    return -(100 - depth);
+            }
+
+            // Tie
+            return 0;
+        }
+
         public int CalculateScore()
         {
             int score = 0;
 
             //3 rows
-            score += GetScoreForLine(new Cell[] { Cells[0, 0], Cells[0, 1], Cells[0, 2]});
+            score += GetScoreForLine(new Cell[] { Cells[0, 0], Cells[0, 1], Cells[0, 2] });
             score += GetScoreForLine(new Cell[] { Cells[1, 0], Cells[1, 1], Cells[1, 2] });
             score += GetScoreForLine(new Cell[] { Cells[2, 0], Cells[2, 1], Cells[2, 2] });
             //3 cols
@@ -137,7 +181,7 @@ namespace TicTacToeAI
 
         public bool IsGameOver()
         {
-            CalculateScore();
+            //CalculateScore();
 
             if (HasWinner())
                 return true;
@@ -154,25 +198,60 @@ namespace TicTacToeAI
 
         private bool HasWinner()
         {
-            //3 rows
-            if ((Cells[0, 0].Content != '.' && Cells[0, 0].Content == Cells[0, 1].Content && Cells[0, 1].Content == Cells[0, 2].Content)
-                || (Cells[1, 0].Content != '.' && Cells[1, 0].Content == Cells[1, 1].Content && Cells[1, 1].Content == Cells[1, 2].Content)
-                || (Cells[2, 0].Content != '.' && Cells[2, 0].Content == Cells[2, 1].Content && Cells[2, 1].Content == Cells[2, 2].Content))
-                return true;
+            for (int i = 0; i < 3; i++)
+            {
+                if (AllValuesInRowAreEqual(i))
+                    return true;
 
-            //3 cols
-            if ((Cells[0, 0].Content != '.' && Cells[0, 0].Content == Cells[1, 0].Content && Cells[1, 0].Content == Cells[2, 0].Content)
-                || (Cells[0, 1].Content != '.' && Cells[0, 1].Content == Cells[1, 1].Content && Cells[1, 1].Content == Cells[2, 1].Content)
-                || (Cells[0, 2].Content != '.' && Cells[0, 2].Content == Cells[1, 2].Content && Cells[1, 2].Content == Cells[2, 2].Content))
-                return true;
+                if (AllValuesInColAreEqual(i))
+                    return true;
+            }
 
-            //2 diagonals
-            if ((Cells[0, 0].Content != '.' && Cells[0, 0].Content == Cells[1, 1].Content && Cells[1, 1].Content == Cells[2, 2].Content)
-                || (Cells[0, 2].Content != '.' && Cells[0, 2].Content == Cells[1, 1].Content && Cells[1, 1].Content == Cells[2, 0].Content))
+            if (AllValuesInPrimeDiagonalAreEqual() || AllValuesInPrimeDiagonalAreEqual())
                 return true;
 
             return false;
 
+        }
+
+        private bool AllValuesInRowAreEqual(int row)
+        {
+            if ((Cells[row, 0].Content != '.' && 
+                Cells[row, 0].Content == Cells[row, 1].Content && 
+                Cells[row, 1].Content == Cells[row, 2].Content))
+                return true;
+
+            return false;
+        }
+
+        private bool AllValuesInColAreEqual(int col)
+        {
+            if (Cells[0, col].Content != '.' && 
+                Cells[0, col].Content == Cells[1, col].Content && 
+                Cells[1, col].Content == Cells[2, col].Content)
+                return true;
+
+            return false;
+        }
+
+        private bool AllValuesInPrimeDiagonalAreEqual()
+        {
+            if (Cells[0, 0].Content != '.' && 
+                Cells[0, 0].Content == Cells[1, 1].Content && 
+                Cells[1, 1].Content == Cells[2, 2].Content)
+                return true;
+
+            return false;
+        }
+
+        private bool AllValuesInSecondDiagonalAreEqual()
+        {
+            if ((Cells[0, 2].Content != '.' && 
+                Cells[0, 2].Content == Cells[1, 1].Content && 
+                Cells[1, 1].Content == Cells[2, 0].Content))
+                return true;
+
+            return false;
         }
 
         //public IEnumerable<Board> GetChildrenOfCurrentState()

@@ -35,9 +35,9 @@ namespace TicTacToeAI
                 }
 
                 Console.WriteLine("The final result is \n" + game.CurrentState.ToString());
-                if (game.CurrentState.BestScore < -100)
+                if (game.CurrentState.BestScore < 0)
                     Console.WriteLine("PlayerO has won.");
-                else if (game.CurrentState.BestScore > 100)
+                else if (game.CurrentState.BestScore > 0)
                     Console.WriteLine("PlayerX has won.");
                 else
                     Console.WriteLine("It is a tie.");
