@@ -18,29 +18,41 @@ namespace TicTacToeAI
                 }
 
                 TicTacToeGame game = new TicTacToeGame(userFirst);
-                int depth = 3;
+                int depth = 0;
 
-                while (!game.CurrentState.IsGameOver())
+                while (true)
                 {
                     if (userFirst)
                     {
                         game.GetNextMoveFromUser();
+
+                        if (game.CurrentState.IsGameOver()) break;
+
                         game.ComputerMakeNextMove(depth);
                     }
                     else
                     {
                         game.ComputerMakeNextMove(depth);
+
+                        if (game.CurrentState.IsGameOver()) break;
+
                         game.GetNextMoveFromUser();
                     }
+
+                    if (game.CurrentState.IsGameOver()) break;
                 }
 
-                Console.WriteLine("The final result is \n" + game.CurrentState.ToString());
-                if (game.CurrentState.BestScore < 0)
+                int finalScore = game.CurrentState.Evaluate2();
+                //int finalScore = game.CurrentState.Evaluate(0);
+                //int finalScore = game.CurrentState.CalculateScore();
+                if (finalScore < 0)
                     Console.WriteLine("PlayerO has won.");
-                else if (game.CurrentState.BestScore > 0)
+                else if (finalScore > 0)
                     Console.WriteLine("PlayerX has won.");
                 else
                     Console.WriteLine("It is a tie.");
+
+                Console.WriteLine($"The final result is: {finalScore} \n" + game.CurrentState.ToString());
 
                 Console.WriteLine("Try again?[y/n]");
                 if (!Console.ReadLine().StartsWith("y", StringComparison.InvariantCultureIgnoreCase))

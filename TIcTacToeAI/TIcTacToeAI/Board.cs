@@ -34,6 +34,67 @@ namespace TicTacToeAI
             //CalculateScore(); //heuristic
         }
 
+        public int Evaluate2()
+        {
+            int emptyCellsCount = CountEmptyCells();
+
+            // Check rows for victory
+            for (int row = 0; row < 3; row++)
+            {
+                if (Cells[row, 0].Content != '.' && AllValuesInRowAreEqual(row))
+                {
+                    char valueInRow = Cells[row, 0].Content;
+
+                    if (valueInRow == 'X')
+                        return 1 + emptyCellsCount;
+                    else if (valueInRow == 'O')
+                        return -1 - emptyCellsCount;
+                }
+            }
+
+            // Check columns for victory
+            for (int col = 0; col < 3; col++)
+            {
+                if (Cells[0, col].Content != '.' && AllValuesInColAreEqual(col))
+                {
+                    char valueInColumn = Cells[0, col].Content;
+
+                    if (valueInColumn == 'X')
+                        return 1 + emptyCellsCount;
+                    else if (valueInColumn == 'O')
+                        return -1 - emptyCellsCount;
+                }
+            }
+
+            // Check diagonals for victory
+            if (Cells[1, 1].Content != '.' && AllValuesInPrimeDiagonalAreEqual() || AllValuesInSecondDiagonalAreEqual())
+            {
+                int valueInDiagonal = Cells[1, 1].Content;
+                if (valueInDiagonal == 'X')
+                    return 1 + emptyCellsCount;
+                else if (valueInDiagonal == 'O')
+                    return -1 - emptyCellsCount;
+            }
+
+            // Tie
+            return 0;
+        }
+
+        private int CountEmptyCells()
+        {
+            int result = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Cells[i, j].Content == '.')
+                        result += 1;
+                }
+            }
+
+            return result;
+        }
+
         public int Evaluate(int depth)
         {
             // Check rows for victory
@@ -253,19 +314,6 @@ namespace TicTacToeAI
 
             return false;
         }
-
-        //public IEnumerable<Board> GetChildrenOfCurrentState()
-        //{
-        //    foreach(Cell c in Cells)
-        //    { 
-        //        if (c.Content == '.')
-        //        {
-        //            Cell[,] newValues = (Cell[,])Cells.Clone();
-        //            newValues[c.X, c.Y].Content = IsTurnForPlayerX ? 'X' : 'O' ;
-        //            yield return new Board(newValues, !IsTurnForPlayerX);
-        //        }
-        //    }
-        //}
         
         public override string ToString()
         {

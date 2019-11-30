@@ -18,10 +18,9 @@ namespace TicTacToeAI
 
         public void ComputerMakeNextMove(int depth)
         {
-            //Board next = null;
-            int[] bestState = MiniMax(depth, CurrentState.IsTurnForPlayerX, int.MinValue + 1, int.MaxValue - 1);
+            int[] bestState = FindBestMove(depth, CurrentState.IsTurnForPlayerX);
 
-            if (bestState.Length > 0 && !CurrentState.IsGameOver())
+            if (bestState.Length > 0)
             {
                 CurrentState.BestScore = bestState[0];
                 CurrentState.Cells[bestState[1], bestState[2]].Content = 'O';
@@ -29,6 +28,41 @@ namespace TicTacToeAI
                 
 
             Console.WriteLine(CurrentState.ToString());
+        }
+
+        private int[] FindBestMove(int depth, bool needMax)
+        {
+            int[] bestMove = new int[3];
+            bestMove[0] = needMax ? int.MinValue + 1 : int.MaxValue - 1;
+
+            // Traverse all cells, evaluate minimax function for
+            // all empty cells. And return the cell with optimal value.
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (CurrentState.Cells[i, j].Content == '.')
+                    {
+                        // Make the move
+                        CurrentState.Cells[i, j].Content = needMax ? 'X' : 'O';
+
+                        // Compute evaluation function for this move
+                        int[] moveVal = MiniMax(0, !needMax, int.MinValue + 1, int.MaxValue - 1);
+
+                        // Undo the move
+                        CurrentState.Cells[i, j].Content = '.';
+
+                        if ((needMax && moveVal[0] > bestMove[0]) ||
+                            (!needMax && moveVal[0] < bestMove[0]))
+                        {
+                            bestMove[1] = i;
+                            bestMove[2] = j;
+                            bestMove[0] = moveVal[0];
+                        }
+                    }
+                }
+            }
+            return bestMove;
         }
 
         private int[] MiniMax(int depth, bool needMax, int alpha, int beta)
@@ -42,10 +76,10 @@ namespace TicTacToeAI
             int bestCol = -1;
 
             if (nextMoves.Count == 0 || depth == 0)
-            //if (depth == 0 || IsGameOver())
             {
-                score = CurrentState.CalculateScore();
+                //score = CurrentState.CalculateScore();
                 //score = CurrentState.Evaluate(depth);
+                score = CurrentState.Evaluate2();
                 return new int[] { score, bestRow, bestCol };
             }
             else
@@ -53,10 +87,11 @@ namespace TicTacToeAI
                 foreach (int[] move in nextMoves)
                 //foreach (Board cur in GetChildrenOfCurrentState())
                 {
-                   CurrentState.Cells[move[0], move[1]].Content = needMax ? 'X' : 'O';
+                    CurrentState.Cells[move[0], move[1]].Content = needMax ? 'X' : 'O';
+
                     if (!needMax)
                     {
-                        score = MiniMax(depth - 1, !needMax, alpha, beta)[0];
+                        score = MiniMax(depth + 1, !needMax, alpha, beta)[0];
                         if (beta > score)
                         {
                             beta = score;
@@ -67,7 +102,7 @@ namespace TicTacToeAI
                     }
                     else
                     {
-                        score = MiniMax(depth - 1, needMax, alpha, beta)[0];
+                        score = MiniMax(depth + 1, needMax, alpha, beta)[0];
                         if (alpha < score)
                         {
                             alpha = score;
