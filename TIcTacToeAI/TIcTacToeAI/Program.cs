@@ -17,22 +17,23 @@ namespace TicTacToeAI
                     userFirst = true;
                 }
 
-                TicTacToeGame game = new TicTacToeGame(userFirst);
+                Board boardGame = new Board();
+                //TicTacToeGame game = new TicTacToeGame(userFirst);
                 int depth = 0;
 
                 while (true)
                 {
                     if (userFirst)
                     {
-                        game.GetNextMoveFromUser();
+                        TicTacToeGame.GetNextMoveFromUser(boardGame);
 
-                        if (game.CurrentState.IsGameOver()) break;
+                        if (boardGame.IsGameOver()) break;
 
-                        game.ComputerMakeNextMove(depth);
+                        TicTacToeGame.ComputerMakeNextMove(depth, boardGame, userFirst);
                     }
                     else
                     {
-                        game.ComputerMakeNextMove(depth);
+                        game.ComputerMakeNextMove(depth, userFirst);
 
                         if (game.CurrentState.IsGameOver()) break;
 

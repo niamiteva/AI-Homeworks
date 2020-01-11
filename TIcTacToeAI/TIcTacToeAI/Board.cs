@@ -31,7 +31,6 @@ namespace TicTacToeAI
         {
             IsTurnForPlayerX = turnForPlayerX;
             Cells = cells;
-            //CalculateScore(); //heuristic
         }
 
         public int Evaluate2()
@@ -139,6 +138,11 @@ namespace TicTacToeAI
             return 0;
         }
 
+        internal bool GameOver()
+        {
+            throw new NotImplementedException();
+        }
+
         public int CalculateScore()
         {
             int score = 0;
@@ -242,19 +246,14 @@ namespace TicTacToeAI
 
         public bool IsGameOver()
         {
-            //CalculateScore();
+            if (CountEmptyCells() == 0)
+                return true;
 
             if (HasWinner())
                 return true;
+        
 
-            //leaf node and is full ==> tie
-            foreach(Cell c in Cells)
-            {
-                if (c.Content == '.')
-                    return false;
-            }
-
-            return true;
+            return false;
         }
 
         private bool HasWinner()
@@ -268,10 +267,7 @@ namespace TicTacToeAI
                     return true;
             }
 
-            if (AllValuesInPrimeDiagonalAreEqual() || AllValuesInPrimeDiagonalAreEqual())
-                return true;
-
-            return false;
+            return AllValuesInPrimeDiagonalAreEqual() || AllValuesInPrimeDiagonalAreEqual();
 
         }
 

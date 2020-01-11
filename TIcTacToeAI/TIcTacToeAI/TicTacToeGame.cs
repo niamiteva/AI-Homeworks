@@ -15,25 +15,51 @@ namespace TicTacToeAI
             InitialState = new Board(initial.Cells, nextPlayer);
             CurrentState = InitialState;
         }
-
-        public void ComputerMakeNextMove(int depth)
+        public static void GetNextMoveFromUser(Board board)
         {
-            int[] bestState = FindBestMove(depth, CurrentState.IsTurnForPlayerX);
+            if (board.IsGameOver()) return;
 
-            if (bestState.Length > 0)
+            while (true)
             {
-                CurrentState.BestScore = bestState[0];
-                CurrentState.Cells[bestState[1], bestState[2]].Content = 'O';
-            }
-                
+                Console.WriteLine("Please type in x:[0-2]");
+                int x = int.Parse(Console.ReadLine());
+                Console.WriteLine("Please type in y:[0-2]");
+                int y = int.Parse(Console.ReadLine());
 
-            Console.WriteLine(CurrentState.ToString());
+                if (IsValidCell(x, y, board))
+                {
+                    board.Cells[x, y].Content = 'X';
+                    Console.WriteLine(board.ToString());
+
+                    return;
+                }
+            }
         }
 
-        private int[] FindBestMove(int depth, bool needMax)
+        private static bool IsValidCell(int x, int y, Board board)
+        {
+            if (x < 0 || x > 2 || y < 0 || y > 2)
+                return false;
+
+            if (board.Cells[x, y].Content != '.')
+                return false;
+
+            return true;
+        }
+
+        public static void ComputerMakeNextMove(int depth, Board board, bool turnForMax)
+        {
+            int[] bestState = FindBestMove(depth, board, !turnForMax);
+            
+            board.Cells[bestState[1], bestState[2]].Content = 'O';
+           
+            Console.WriteLine(board.ToString());
+        }
+
+        private static int[] FindBestMove(int depth, Board board, bool needMax)
         {
             int[] bestMove = new int[3];
-            bestMove[0] = needMax ? int.MinValue + 1 : int.MaxValue - 1;
+            bestMove[0] = needMax ? -1000 : 1000;
 
             // Traverse all cells, evaluate minimax function for
             // all empty cells. And return the cell with optimal value.
@@ -41,16 +67,16 @@ namespace TicTacToeAI
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    if (CurrentState.Cells[i, j].Content == '.')
+                    if (board.Cells[i, j].Content == '.')
                     {
                         // Make the move
-                        CurrentState.Cells[i, j].Content = needMax ? 'X' : 'O';
+                        board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
                         // Compute evaluation function for this move
-                        int[] moveVal = MiniMax(0, !needMax, int.MinValue + 1, int.MaxValue - 1);
+                        int[] moveVal = MiniMax(0,board, !needMax, int.MinValue + 1, int.MaxValue - 1);
 
                         // Undo the move
-                        CurrentState.Cells[i, j].Content = '.';
+                        board.Cells[i, j].Content = '.';
 
                         if ((needMax && moveVal[0] > bestMove[0]) ||
                             (!needMax && moveVal[0] < bestMove[0]))
@@ -65,9 +91,8 @@ namespace TicTacToeAI
             return bestMove;
         }
 
-        private int[] MiniMax(int depth, bool needMax, int alpha, int beta)
+        private static int[] MiniMax(int depth, Board board, bool needMax, int alpha, int beta)
         {
-            List<int[]> nextMoves = GenerateMoves();
 
             //childNode = null;
 
@@ -75,106 +100,59 @@ namespace TicTacToeAI
             int bestRow = -1;
             int bestCol = -1;
 
-            if (nextMoves.Count == 0 || depth == 0)
+            if (board.GameOver())
             {
                 //score = CurrentState.CalculateScore();
                 //score = CurrentState.Evaluate(depth);
-                score = CurrentState.Evaluate2();
+                score = board.Evaluate2();
                 return new int[] { score, bestRow, bestCol };
             }
-            else
+
+            if (needMax)
             {
-                foreach (int[] move in nextMoves)
-                //foreach (Board cur in GetChildrenOfCurrentState())
+                for (int i = 0; i < 3; i++)
                 {
-                    CurrentState.Cells[move[0], move[1]].Content = needMax ? 'X' : 'O';
-
-                    if (!needMax)
+                    for (int j = 0; j < 3; j++)
                     {
-                        score = MiniMax(depth + 1, !needMax, alpha, beta)[0];
-                        if (beta > score)
-                        {
-                            beta = score;
-                            //childNode = cur;
-                            bestRow = move[0];
-                            bestCol = move[1];
-                        }
-                    }
-                    else
-                    {
-                        score = MiniMax(depth + 1, needMax, alpha, beta)[0];
-                        if (alpha < score)
-                        {
-                            alpha = score;
-                            bestRow = move[0];
-                            bestCol = move[1];
-                        }
-                    }
+                        board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
-                    // undo move
-                    CurrentState.Cells[move[0], move[1]].Content = '.';
+                        if (!needMax)
+                        {
+                            score = MiniMax(depth + 1,board, !needMax, alpha, beta)[0];
+                            if (beta > score)
+                            {
+                                beta = score;
+                                //childNode = cur;
+                                bestRow = move[0];
+                                bestCol = move[1];
+                            }
+                        }
+                        else
+                        {
+                            score = MiniMax(depth + 1, board, needMax, alpha, beta)[0];
+                            if (alpha < score)
+                            {
+                                alpha = score;
+                                bestRow = move[0];
+                                bestCol = move[1];
+                            }
+                        }
 
-                    // cut-off
-                    if (alpha >= beta) break;
+                        // undo move
+                        board.Cells[move[0], move[1]].Content = '.';
+
+                        // cut-off
+                        if (alpha >= beta) break;
+                    }
                 }
 
-                return new int[] { needMax ? alpha : beta, bestRow, bestCol };
             }
+            return new int[] { needMax ? alpha : beta, bestRow, bestCol };
+           
         }
 
-        private List<int[]> GenerateMoves()
-        {
-            List<int[]> nextMoves = new List<int[]>();
 
-            if (CurrentState.IsGameOver())
-            {
-                return nextMoves;   // return empty list
-            }
-
-            for (int row = 0; row < 3; ++row)
-            {
-                for (int col = 0; col < 3; ++col)
-                {
-                    if (IsValidCell(row, col))
-                    {
-                        nextMoves.Add(new int[] { row, col });
-                    }
-                }
-            }
-            return nextMoves;
-        }
-
-        public void GetNextMoveFromUser()
-        {
-            if (CurrentState.IsGameOver()) return;
-            
-            while (true)
-            {
-                    Console.WriteLine("Please type in x:[0-2]");
-                    int x = int.Parse(Console.ReadLine());
-                    Console.WriteLine("Please type in y:[0-2]");
-                    int y = int.Parse(Console.ReadLine());
-                    
-                    if(IsValidCell(x, y))
-                    {
-                        CurrentState.Cells[x, y].Content = 'X';
-                        Console.WriteLine(CurrentState.ToString());
-
-                        return;
-                    }
-            }
-        }
-
-        private bool IsValidCell(int x , int y)
-        {
-            if (x < 0 || x > 2 || y < 0 || y > 2)
-                return false;
-
-            if (CurrentState.Cells[x, y].Content != '.')
-                return false;
-
-            return true;
-        }
+        
     }
     
 
