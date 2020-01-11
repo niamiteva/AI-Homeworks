@@ -6,15 +6,6 @@ namespace TicTacToeAI
 {
     class TicTacToeGame
     {
-        Board InitialState { get; set; }
-        public Board CurrentState { get; private set; }
-
-        public TicTacToeGame(bool nextPlayer)
-        {
-            Board initial = new Board();
-            InitialState = new Board(initial.Cells, nextPlayer);
-            CurrentState = InitialState;
-        }
         public static void GetNextMoveFromUser(Board board)
         {
             if (board.IsGameOver()) return;
@@ -73,17 +64,17 @@ namespace TicTacToeAI
                         board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
                         // Compute evaluation function for this move
-                        int[] moveVal = MiniMax(0,board, !needMax, int.MinValue + 1, int.MaxValue - 1);
+                        int moveVal = MiniMax(0,board, !needMax, int.MinValue + 1, int.MaxValue - 1);
 
                         // Undo the move
                         board.Cells[i, j].Content = '.';
 
-                        if ((needMax && moveVal[0] > bestMove[0]) ||
-                            (!needMax && moveVal[0] < bestMove[0]))
+                        if ((needMax && moveVal > bestMove[0]) ||
+                            (!needMax && moveVal < bestMove[0]))
                         {
                             bestMove[1] = i;
                             bestMove[2] = j;
-                            bestMove[0] = moveVal[0];
+                            bestMove[0] = moveVal;
                         }
                     }
                 }
@@ -91,63 +82,54 @@ namespace TicTacToeAI
             return bestMove;
         }
 
-        private static int[] MiniMax(int depth, Board board, bool needMax, int alpha, int beta)
+        private static int MiniMax(int depth, Board board, bool needMax, int alpha, int beta)
         {
 
             //childNode = null;
+            int score = 0;
+            int bestScore = needMax ? -1000 : 1000;
 
-            int score;
-            int bestRow = -1;
-            int bestCol = -1;
-
-            if (board.GameOver())
+            if (board.IsGameOver())
             {
-                //score = CurrentState.CalculateScore();
-                //score = CurrentState.Evaluate(depth);
-                score = board.Evaluate2();
-                return new int[] { score, bestRow, bestCol };
+                //score = board.CalculateScore();
+                score = board.Evaluate(depth);
+                //score = board.Evaluate2();
+                return score;
             }
-
-            if (needMax)
+           
+            for (int i = 0; i < 3; i++)
             {
-                for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    if(board.Cells[i,j].Content == '.')
                     {
                         board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
                         if (!needMax)
                         {
-                            score = MiniMax(depth + 1,board, !needMax, alpha, beta)[0];
-                            if (beta > score)
-                            {
-                                beta = score;
-                                //childNode = cur;
-                                bestRow = move[0];
-                                bestCol = move[1];
-                            }
+                            score = MiniMax(depth + 1, board, !needMax, alpha, beta);
+                            bestScore = bestScore > score ? bestScore : score;
+                            alpha = bestScore > alpha ? bestScore : alpha;
+
                         }
                         else
                         {
-                            score = MiniMax(depth + 1, board, needMax, alpha, beta)[0];
-                            if (alpha < score)
-                            {
-                                alpha = score;
-                                bestRow = move[0];
-                                bestCol = move[1];
-                            }
+                            score = MiniMax(depth + 1, board, needMax, alpha, beta);
+                            bestScore = bestScore < score ? bestScore : score;
+                            beta = beta < bestScore ? beta : bestScore;
+                            
                         }
 
-                        // undo move
-                        board.Cells[move[0], move[1]].Content = '.';
+                        board.Cells[i, j].Content = '.';
 
-                        // cut-off
-                        if (alpha >= beta) break;
+                        if (beta <= alpha)
+                            return bestScore;
+                    
                     }
                 }
-
             }
-            return new int[] { needMax ? alpha : beta, bestRow, bestCol };
+
+            return bestScore;
            
         }
 

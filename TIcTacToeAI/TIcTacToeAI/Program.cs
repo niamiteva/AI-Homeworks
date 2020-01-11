@@ -33,19 +33,19 @@ namespace TicTacToeAI
                     }
                     else
                     {
-                        game.ComputerMakeNextMove(depth, userFirst);
+                        TicTacToeGame.ComputerMakeNextMove(depth,boardGame, userFirst);
 
-                        if (game.CurrentState.IsGameOver()) break;
+                        if (boardGame.IsGameOver()) break;
 
-                        game.GetNextMoveFromUser();
+                        TicTacToeGame.GetNextMoveFromUser(boardGame);
                     }
 
-                    if (game.CurrentState.IsGameOver()) break;
+                    if (boardGame.IsGameOver()) break;
                 }
 
-                int finalScore = game.CurrentState.Evaluate2();
-                //int finalScore = game.CurrentState.Evaluate(0);
-                //int finalScore = game.CurrentState.CalculateScore();
+                //int finalScore = boardGame.Evaluate2();
+                int finalScore = boardGame.Evaluate(0);
+                //int finalScore = boardGame.CalculateScore();
                 if (finalScore < 0)
                     Console.WriteLine("PlayerO has won.");
                 else if (finalScore > 0)
@@ -53,7 +53,7 @@ namespace TicTacToeAI
                 else
                     Console.WriteLine("It is a tie.");
 
-                Console.WriteLine($"The final result is: {finalScore} \n" + game.CurrentState.ToString());
+                Console.WriteLine($"The final result is: {finalScore} \n" + boardGame.ToString());
 
                 Console.WriteLine("Try again?[y/n]");
                 if (!Console.ReadLine().StartsWith("y", StringComparison.InvariantCultureIgnoreCase))

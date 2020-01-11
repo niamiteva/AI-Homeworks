@@ -7,16 +7,10 @@ namespace TicTacToeAI
     class Board
     {
         public Cell[,] Cells { get; set; }
-        public int Score { get; private set; }
-        public bool IsTurnForPlayerX { get; set; }
-        public int BestScore { get; set;}
-        public bool GameOver { get; private set; }
 
         //empty board
         public Board()
         {
-            Score = 0;
-
             Cells = new Cell[3, 3];
             for (int i = 0; i < 3; i++)
             {
@@ -25,12 +19,6 @@ namespace TicTacToeAI
                     Cells[i, j] = new Cell(i, j, '.');
                 }
             }
-        }
-
-        public Board(Cell[,] cells, bool turnForPlayerX)
-        {
-            IsTurnForPlayerX = turnForPlayerX;
-            Cells = cells;
         }
 
         public int Evaluate2()
@@ -136,112 +124,6 @@ namespace TicTacToeAI
 
             // Tie
             return 0;
-        }
-
-        internal bool GameOver()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int CalculateScore()
-        {
-            int score = 0;
-
-            //3 rows
-            score += GetScoreForLine(new Cell[] { Cells[0, 0], Cells[0, 1], Cells[0, 2] });
-            score += GetScoreForLine(new Cell[] { Cells[1, 0], Cells[1, 1], Cells[1, 2] });
-            score += GetScoreForLine(new Cell[] { Cells[2, 0], Cells[2, 1], Cells[2, 2] });
-            //3 cols
-            score += GetScoreForLine(new Cell[] { Cells[0, 0], Cells[1, 0], Cells[2, 0] });
-            score += GetScoreForLine(new Cell[] { Cells[0, 1], Cells[1, 1], Cells[2, 1] });
-            score += GetScoreForLine(new Cell[] { Cells[0, 2], Cells[1, 2], Cells[2, 2] });
-            //2 diagonals
-            score += GetScoreForLine(new Cell[] { Cells[0, 0], Cells[1, 1], Cells[2, 2] });
-            score += GetScoreForLine(new Cell[] { Cells[0, 2], Cells[1, 1], Cells[2, 0] });
-
-            Score = score;
-
-            return score;
-        }
-
-        private int GetScoreForLine(Cell[] cells)
-        {
-            int score = 0;
-
-            // First cell
-            if (cells[0].Content == 'X')
-            {
-                score = 1;
-            }
-            else if (cells[0].Content == 'O')
-            {
-                score = -1;
-            }
-
-            // Second cell
-            if (cells[1].Content == 'X')
-            {
-                if (score == 1)
-                {   // cell1 is mySeed
-                    score = 10;
-                }
-                else if (score == -1)
-                {  // cell1 is oppSeed
-                    return 0;
-                }
-                else
-                {  // cell1 is empty
-                    score = 1;
-                }
-            }
-            else if (cells[1].Content == 'O')
-            {
-                if (score == -1)
-                { // cell1 is oppSeed
-                    score = -10;
-                }
-                else if (score == 1)
-                { // cell1 is mySeed
-                    return 0;
-                }
-                else
-                {  // cell1 is empty
-                    score = -1;
-                }
-            }
-
-            // Third cell
-            if (cells[2].Content == 'X')
-            {
-                if (score > 0)
-                {  // cell1 and/or cell2 is mySeed
-                    score *= 10;
-                }
-                else if (score < 0)
-                {  // cell1 and/or cell2 is oppSeed
-                    return 0;
-                }
-                else
-                {  // cell1 and cell2 are empty
-                    score = 1;
-                }
-            }
-            else if (cells[2].Content == 'O')
-            {
-                if (score < 0)
-                {  // cell1 and/or cell2 is oppSeed
-                    score *= 10;
-                }
-                else if (score > 1)
-                {  // cell1 and/or cell2 is mySeed
-                    return 0;
-                }
-                else
-                {  // cell1 and cell2 are empty
-                    score = -1;
-                }
-            }
-            return score;
         }
 
         public bool IsGameOver()
