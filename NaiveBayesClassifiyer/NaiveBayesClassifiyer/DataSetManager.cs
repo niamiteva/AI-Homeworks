@@ -59,12 +59,6 @@ namespace NaiveBayesClassifiyer
                 // Utils.VectorShow(mat[i], dec, wid);
             }
         }
-
-        public static void VectorShow(string[] vector, int dec, int wid)
-        {
-            for (int i = 0; i < vector.Length; ++i)
-                Console.Write((vector[i] + "F" + dec).PadLeft(wid));
-            Console.WriteLine("");
-        }
+        
     }
 }
