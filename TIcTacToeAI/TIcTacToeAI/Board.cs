@@ -155,8 +155,8 @@ namespace TicTacToeAI
 
         private bool AllValuesInRowAreEqual(int row)
         {
-            if ((Cells[row, 0].Content != '.' && 
-                Cells[row, 0].Content == Cells[row, 1].Content && 
+            if (Cells[row, 0].Content != '.' && 
+                (Cells[row, 0].Content == Cells[row, 1].Content && 
                 Cells[row, 1].Content == Cells[row, 2].Content))
                 return true;
 
@@ -166,8 +166,8 @@ namespace TicTacToeAI
         private bool AllValuesInColAreEqual(int col)
         {
             if (Cells[0, col].Content != '.' && 
-                Cells[0, col].Content == Cells[1, col].Content && 
-                Cells[1, col].Content == Cells[2, col].Content)
+                (Cells[0, col].Content == Cells[1, col].Content && 
+                Cells[1, col].Content == Cells[2, col].Content))
                 return true;
 
             return false;
@@ -176,8 +176,8 @@ namespace TicTacToeAI
         private bool AllValuesInPrimeDiagonalAreEqual()
         {
             if (Cells[0, 0].Content != '.' && 
-                Cells[0, 0].Content == Cells[1, 1].Content && 
-                Cells[1, 1].Content == Cells[2, 2].Content)
+                (Cells[0, 0].Content == Cells[1, 1].Content && 
+                Cells[1, 1].Content == Cells[2, 2].Content))
                 return true;
 
             return false;
@@ -185,8 +185,8 @@ namespace TicTacToeAI
 
         private bool AllValuesInSecondDiagonalAreEqual()
         {
-            if ((Cells[0, 2].Content != '.' && 
-                Cells[0, 2].Content == Cells[1, 1].Content && 
+            if (Cells[0, 2].Content != '.' && 
+                (Cells[0, 2].Content == Cells[1, 1].Content && 
                 Cells[1, 1].Content == Cells[2, 0].Content))
                 return true;
 

@@ -51,9 +51,7 @@ namespace TicTacToeAI
         {
             int[] bestMove = new int[3];
             bestMove[0] = needMax ? -1000 : 1000;
-
-            // Traverse all cells, evaluate minimax function for
-            // all empty cells. And return the cell with optimal value.
+            
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
@@ -64,7 +62,7 @@ namespace TicTacToeAI
                         board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
                         // Compute evaluation function for this move
-                        int moveVal = MiniMax(0,board, !needMax, int.MinValue + 1, int.MaxValue - 1);
+                        int moveVal = MiniMax(0,board, !needMax, -100000, +100000);
 
                         // Undo the move
                         board.Cells[i, j].Content = '.';

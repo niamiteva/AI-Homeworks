@@ -29,11 +29,11 @@ namespace TicTacToeAI
 
                         if (boardGame.IsGameOver()) break;
 
-                        TicTacToeGame.ComputerMakeNextMove(depth, boardGame, userFirst);
+                        TicTacToeGame.ComputerMakeNextMove(depth, boardGame, false);
                     }
                     else
                     {
-                        TicTacToeGame.ComputerMakeNextMove(depth,boardGame, userFirst);
+                        TicTacToeGame.ComputerMakeNextMove(depth,boardGame, false);
 
                         if (boardGame.IsGameOver()) break;
 
