@@ -29,14 +29,15 @@ namespace NaiveBayesClassifiyer
     15. crime: 2 (y,n)
     16. duty-free-exports: 2 (y,n)
     17. export-administration-act-south-africa: 2 (y,n)");
-
-            Console.WriteLine("\nLoading a 17x435 matrix from file dummy_data.tsv \n");
-            string fn = "..\\..\\..\\..\\house-votes-84.data";
-            string[][] dataSet = DataSetManager.MatrixLoad(fn, 435, 17, ',');
-            DataSetManager.MatrixShow(dataSet, 1, 6);
-
             
+            string fn = "..\\..\\..\\..\\house-votes-84.data";
+            string[][] dataSet = DataSetManager.MatrixLoad(fn, 17, ',');
+            //DataSetManager.MatrixShow(dataSet, 1, 6);
 
+            KFoldCrossValidator.RandomizeOrder(dataSet);
+            KFoldCrossValidator.CrossValidate(dataSet, 8);
+
+            Console.ReadKey();
         }
         
     }

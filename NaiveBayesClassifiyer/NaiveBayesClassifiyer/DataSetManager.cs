@@ -7,10 +7,10 @@ namespace NaiveBayesClassifiyer
 {
     class DataSetManager
     {
-        public static string[][] MatrixLoad(string fileName, int numberOfRows, int numberOfCols, char separator)
+        public static string[][] MatrixLoad(string fileName, int numberOfCols, char separator)
         {
             //TODO: make it with unknown number of rows and cols in the file
-            
+            int numberOfRows = CountFileLines(fileName);
             string[][] result = MatrixCreate(numberOfRows, numberOfCols);
             string line = "";
             string[] tokens = null;
@@ -32,6 +32,20 @@ namespace NaiveBayesClassifiyer
             }
             sr.Close(); ifs.Close();
             return result;
+        }
+
+        public static int CountFileLines(string filePath)
+        {
+            int i = 0;
+            using (FileStream ifs = new FileStream(filePath, FileMode.Open))
+            {
+                using (StreamReader r = new StreamReader(ifs))
+                {
+                    while (r.ReadLine() != null) { i++; }
+                    //r.Close(); ifs.Close();                  
+                }
+            }
+            return i;
         }
 
         public static string[][] MatrixCreate(int rows, int cols)

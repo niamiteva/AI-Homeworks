@@ -4,49 +4,55 @@ using System.Text;
 
 namespace NaiveBayesClassifiyer
 {
-    class KFoldCrossValidator
+    public class KFoldCrossValidator
     {
-        static void RandomizeOrder(double[][] allData)
+        public static void RandomizeOrder(string[][] allData)
         {
             Random rnd = new Random(0);
             for (int i = 0; i < allData.Length; ++i)
             {
                 int r = rnd.Next(i, allData.Length);
-                double[] tmp = allData[r];
+                string[] tmp = allData[r];
                 allData[r] = allData[i];
                 allData[i] = tmp;
             }
         }
 
-        static double CrossValidate(int[] numNodes, double[][] allData, int numFolds, double learnRate, double momentum)
+        public static void CrossValidate(string[][] allData, int numFolds)
         {
             // return the mean classification error for a neural network on allData
             int[] cumWrongCorrect = new int[2]; // cumulative # wrong, # correct
 
             for (int k = 0; k < numFolds; ++k) // each fold
             {
-                NeuralNetwork nn = new NeuralNetwork(numNodes[0], numNodes[1], numNodes[2]); // instantiate a NN
-                nn.InitializeWeights(0); // don't forget this!
-                double[][] trainData = GetTrainData(allData, numFolds, k); // get the training data for curr fold
-                double[][] testData = GetTestData(allData, numFolds, k); // the test data for curr fold
-                double[] bestWeights = nn.Train(trainData, 35, learnRate, momentum); // artificially small maxEpochs
-                nn.SetWeights(bestWeights); // not  necessary with back-prop training
-                int[] wrongCorrect = nn.WrongCorrect(testData); // get classification results
+                NaiveBayes nb = new NaiveBayes(allData);
+
+                string[][] trainData = GetTrainData(allData, numFolds, k); // get the training data for curr fold
+                string[][] testData = GetTestData(allData, numFolds, k); // the test data for curr fold
+
+                nb.LearningPhase(trainData);
+                int[] wrongCorrect = nb.ClassificationPhase(testData); // get classification results
                 double error = (wrongCorrect[0] * 1.0) / (wrongCorrect[0] + wrongCorrect[1]);
                 cumWrongCorrect[0] += wrongCorrect[0]; // accumulate # wrong
                 cumWrongCorrect[1] += wrongCorrect[1]; // accumulate # correct
+
                 Console.Write("Fold = " + k + ": wrong = " + wrongCorrect[0] + " correct = " + wrongCorrect[1]);
                 Console.WriteLine("    error = " + error.ToString("F4"));
             }
 
-            return (cumWrongCorrect[0] * 1.0) / (cumWrongCorrect[0] + cumWrongCorrect[1]); // mean classification error
+            double meanClassificationError = (cumWrongCorrect[0] * 1.0) / (cumWrongCorrect[0] + cumWrongCorrect[1]);
+
+            Console.WriteLine("Mean cross-validation classification error:");
+            Console.WriteLine(meanClassificationError);
+            Console.WriteLine("Mean cross-validation classification accuracy:");
+            Console.WriteLine(1 - meanClassificationError);
         }
 
-        static double[][] GetTrainData(double[][] allData, int numFolds, int fold)
+        static string[][] GetTrainData(string[][] allData, int numFolds, int fold)
         {
             int[][] firstAndLastTest = GetFirstLastTest(allData.Length, numFolds); // first and last index of rows tagged as TEST data
             int numTrain = allData.Length - (firstAndLastTest[fold][1] - firstAndLastTest[fold][0] + 1); // tot num rows - num test rows
-            double[][] result = new double[numTrain][];
+            string[][] result = new string[numTrain][];
             int i = 0; // index into result/test data
             int ia = 0; // index into all data
             while (i < result.Length)
@@ -61,12 +67,12 @@ namespace NaiveBayesClassifiyer
             return result;
         }
 
-        static double[][] GetTestData(double[][] allData, int numFolds, int fold)
+        static string[][] GetTestData(string[][] allData, int numFolds, int fold)
         {
             // return a reference to TEST data
             int[][] firstAndLastTest = GetFirstLastTest(allData.Length, numFolds); // first and last index of rows tagged as TEST data
             int numTest = firstAndLastTest[fold][1] - firstAndLastTest[fold][0] + 1;
-            double[][] result = new double[numTest][];
+            string[][] result = new string[numTest][];
             int ia = firstAndLastTest[fold][0]; // index into all data
             for (int i = 0; i < result.Length; ++i)
             {

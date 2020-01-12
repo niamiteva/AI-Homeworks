@@ -8,13 +8,13 @@ namespace KMeansClustering
 {
     class DataSetManager
     {
-        public static double[][] ParseDataToDouble(string fileName, int numberOfCols, char separator)
+        public static double[][] ParseDataToDouble(string fileName, int numberOfCols, string separator)
         {
-            string[][] data = MatrixLoad(fileName, 2, ' ');
-            double[][] parsed = new double[data.Length][];
+            string[][] data = MatrixLoad(fileName, 2, separator);
+            double[][] parsed = DMatrixCreate(CountFileLines(fileName), numberOfCols);
             for (int i = 0; i < data.Length; i++)
                 for (int j = 0; j < 2; j++)
-                    parsed[i][j] = Convert.ToDouble(data[i][j]);
+                    double.TryParse(data[i][j], out parsed[i][j]);
 
             return parsed;
         }
@@ -30,7 +30,7 @@ namespace KMeansClustering
         //    return parsed;
         //}
 
-        public static string[][] MatrixLoad(string fileName, int numberOfCols, char separator)
+        public static string[][] MatrixLoad(string fileName, int numberOfCols, string separator)
         {
             //TODO: make it with unknown number of rows and cols in the file
             int numberOfRows = CountFileLines(fileName);
@@ -47,7 +47,7 @@ namespace KMeansClustering
                     {
                         if (line.StartsWith("//") == true)
                             continue;
-                        tokens = line.Split(separator);
+                        tokens = line.Split(separator.ToCharArray());
                         for (int j = 0; j < numberOfCols; ++j)
                         {
                             int k = j;  // into tokens
@@ -81,6 +81,13 @@ namespace KMeansClustering
             string[][] result = new string[rows][];
             for (int i = 0; i < rows; ++i)
                 result[i] = new string[cols];
+            return result;
+        }
+        public static double[][] DMatrixCreate(int rows, int cols)
+        {
+            double[][] result = new double[rows][];
+            for (int i = 0; i < rows; ++i)
+                result[i] = new double[cols];
             return result;
         }
 

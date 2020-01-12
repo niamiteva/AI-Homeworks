@@ -6,14 +6,16 @@ namespace KMeansClustering
     {
         static void Main(string[] args)
         {
-
+            //const int MAX = 1000;
+            int numClusters = 0;
+            //int[] clustering = new int[MAX];
             string fileName = "..\\..\\..\\..\\Datasets\\normal\\normal.txt";
-            double[][] normalData = DataSetManager.ParseDataToDouble(fileName, 2, ' ');
+            double[][] normalData = DataSetManager.ParseDataToDouble(fileName, 2, "\t");
 
             Console.WriteLine("========= Data Clustering of file normal.txt");
             //KMeansAlgorithm.ShowData(normalData, 1, true, true);
             Console.WriteLine("Enter number of clusters: ");
-            int numClusters = Convert.ToInt32(Console.ReadLine());
+            numClusters = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("\nSetting numClusters to " + numClusters);
 
             int[] clustering = KMeansAlgorithm.Cluster(normalData, numClusters); // this is it
@@ -26,7 +28,7 @@ namespace KMeansClustering
             //==================== the second file ===============================
 
             fileName = "..\\..\\..\\..\\Datasets\\unbalance\\unbalance.txt";
-            double[][] unbalanceData = DataSetManager.ParseDataToDouble(fileName, 2, ' ');
+            double[][] unbalanceData = DataSetManager.ParseDataToDouble(fileName, 2, " ");
 
             Console.WriteLine("========= Data Clustering of file unbalance.txt");
             //KMeansAlgorithm.ShowData(normalData, 1, true, true);
