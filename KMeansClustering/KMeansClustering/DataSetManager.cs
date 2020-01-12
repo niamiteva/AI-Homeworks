@@ -19,17 +19,6 @@ namespace KMeansClustering
             return parsed;
         }
 
-        //public static int[][] ParseDataToInt(string fileName, int numberOfCols, char separator)
-        //{
-        //    string[][] data = MatrixLoad(fileName, 2, ' ');
-        //    int[][] parsed = new int[data.Length][];
-        //    for (int i = 0; i < data.Length; i++)
-        //        for (int j = 0; j < 2; j++)
-        //            parsed[i][j] = Convert.ToInt32(data[i][j]);
-
-        //    return parsed;
-        //}
-
         public static string[][] MatrixLoad(string fileName, int numberOfCols, string separator)
         {
             //TODO: make it with unknown number of rows and cols in the file
