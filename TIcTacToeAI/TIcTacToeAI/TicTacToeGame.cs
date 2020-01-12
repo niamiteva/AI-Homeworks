@@ -94,37 +94,69 @@ namespace TicTacToeAI
                 return score;
             }
            
-            for (int i = 0; i < 3; i++)
+            if(needMax)
             {
-                for (int j = 0; j < 3; j++)
+                for (int i = 0; i < 3; i++)
                 {
-                    if(board.Cells[i,j].Content == '.')
+                    for (int j = 0; j < 3; j++)
                     {
-                        board.Cells[i, j].Content = needMax ? 'X' : 'O';
+                        if (board.Cells[i, j].Content == '.')
+                        {
+                            //board.Cells[i, j].Content = needMax ? 'X' : 'O';
+                            board.Cells[i, j].Content = 'X';
 
-                        if (needMax)
-                        {
-                            score = MiniMax(depth + 1, board, !needMax, alpha, beta);
-                            bestScore = bestScore > score ? bestScore : score; //max
-                            alpha = bestScore > alpha ? bestScore : alpha; //max
+                            //if (needMax)
+                            //{
+                                score = MiniMax(depth + 1, board, !needMax, alpha, beta);
+                                bestScore = bestScore > score ? bestScore : score; //max
+                                alpha = bestScore > alpha ? bestScore : alpha; //max
+                            //}
+                            //else
+                            //{
+                            //    score = MiniMax(depth + 1, board, needMax, alpha, beta);
+                            //    bestScore = bestScore < score ? bestScore : score; //min
+                            //    beta = beta < bestScore ? beta : bestScore; //min                          
+                            //}
+
+                            board.Cells[i, j].Content = '.';
+
+                            if (beta <= alpha)
+                                return bestScore;
+
                         }
-                        else
+                    }
+                }
+
+                return bestScore;
+            }
+            else
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (board.Cells[i, j].Content == '.')
                         {
+                            //board.Cells[i, j].Content = needMax ? 'X' : 'O';
+                            board.Cells[i, j].Content = 'O';
+                            
                             score = MiniMax(depth + 1, board, needMax, alpha, beta);
                             bestScore = bestScore < score ? bestScore : score; //min
                             beta = beta < bestScore ? beta : bestScore; //min                          
+                            
+
+                            board.Cells[i, j].Content = '.';
+
+                            if (beta <= alpha)
+                                return bestScore;
+
                         }
-
-                        board.Cells[i, j].Content = '.';
-
-                        if (beta <= alpha)
-                            return bestScore;
-                    
                     }
                 }
-            }
 
-            return bestScore;
+                return bestScore;
+            }
+            
            
         }
 

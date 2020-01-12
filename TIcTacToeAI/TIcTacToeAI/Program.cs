@@ -21,7 +21,7 @@ namespace TicTacToeAI
 
                 if (!userFirst)
                 {
-                    boardGame.Cells[0,0].Content = 'O';
+                    boardGame.Cells[1,1].Content = 'O';
                 }
 
                 Console.WriteLine(boardGame.ToString());
