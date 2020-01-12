@@ -40,7 +40,7 @@ namespace TicTacToeAI
 
         public static void ComputerMakeNextMove(int depth, Board board, bool turnForMax)
         {
-            int[] bestState = FindBestMove(depth, board, !turnForMax);
+            int[] bestState = FindBestMove(depth, board, turnForMax);
             
             board.Cells[bestState[1], bestState[2]].Content = 'O';
            
@@ -89,7 +89,6 @@ namespace TicTacToeAI
 
             if (board.IsGameOver())
             {
-                //score = board.CalculateScore();
                 score = board.Evaluate(depth);
                 //score = board.Evaluate2();
                 return score;
@@ -103,19 +102,17 @@ namespace TicTacToeAI
                     {
                         board.Cells[i, j].Content = needMax ? 'X' : 'O';
 
-                        if (!needMax)
+                        if (needMax)
                         {
                             score = MiniMax(depth + 1, board, !needMax, alpha, beta);
-                            bestScore = bestScore > score ? bestScore : score;
-                            alpha = bestScore > alpha ? bestScore : alpha;
-
+                            bestScore = bestScore > score ? bestScore : score; //max
+                            alpha = bestScore > alpha ? bestScore : alpha; //max
                         }
                         else
                         {
                             score = MiniMax(depth + 1, board, needMax, alpha, beta);
-                            bestScore = bestScore < score ? bestScore : score;
-                            beta = beta < bestScore ? beta : bestScore;
-                            
+                            bestScore = bestScore < score ? bestScore : score; //min
+                            beta = beta < bestScore ? beta : bestScore; //min                          
                         }
 
                         board.Cells[i, j].Content = '.';
