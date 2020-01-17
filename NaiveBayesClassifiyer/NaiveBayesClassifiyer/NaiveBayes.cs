@@ -35,10 +35,6 @@ namespace NaiveBayesClassifiyer
             int[] classValuesCount = new int[2];  // democrat, republican
             CountClassValues(dataSet, classValuesCount);
 
-            //P(ClassPlay=Yes) & P(ClassPlay=No).
-            ClassProbabilities[0] = classValuesCount[0] / Size;
-            ClassProbabilities[1] = classValuesCount[1] / Size;
-
             //compute probs in class for every attributes          
             ComputeProbabilities(dataSet, classValuesCount);
             //DisplayProbabilities(ProbabilityInClass);
@@ -63,15 +59,12 @@ namespace NaiveBayesClassifiyer
                 {
                     for (int p = 1; p < Predictors; p++)
                     {
-                        for (int a = 0; a < 3; a++)
-                        {
                             v = GetAtributeValue(data[i][p]);
-                            nbProbability[c] *= ProbabilityInClass[c][a][v];
-                        }
+                            nbProbability[c] *= ProbabilityInClass[c][p-1][v];
                     }
                 }
 
-                string prediction = nbProbability[0] < nbProbability[1] ? "republican" : "democrat";
+                string prediction = nbProbability[0] >= nbProbability[1] ? "republican" : "democrat";
                 //Console.WriteLine(prediction);
 
                 if (prediction == data[i][0])
@@ -116,10 +109,10 @@ namespace NaiveBayesClassifiyer
                 int c = GetClass(dataSet[i][0]);
                 if (c == -1) continue;
 
-                for (int j = 0; j < Predictors; ++j) // atrributes
+                for (int j = 1; j < Predictors; ++j) // atrributes
                 {
                     int a = GetAtributeValue(dataSet[i][j]);
-                    ++ProbabilityInClass[c][j][a];
+                    ++ProbabilityInClass[c][j-1][a];
                 }
             }
         }
@@ -129,9 +122,9 @@ namespace NaiveBayesClassifiyer
             //P(Atribute[i]|Class[j])
             for (int c = 0; c < 2; ++c)
             {
-                for (int a = 0; a < Predictors; ++a)
+                for (int a = 1; a < Predictors; ++a)
                     for (int i = 0; i < ProbabilityInClass[0][0].Length; ++i)
-                        ProbabilityInClass[c][a][i] /= classCounts[c]; //[class][atribute][probability]
+                        ProbabilityInClass[c][a-1][i] /= classCounts[c]; //[class][atribute][probability]
             }
         }
 
@@ -160,24 +153,6 @@ namespace NaiveBayesClassifiyer
             }
 
             return 2;
-        }
-        private void DisplayProbabilities(double[][][] probabilityInClass)
-        {
-            // display probabilities
-            Console.WriteLine("\nProbabilities in class for every atribute:");
-            for (int c = 0; c < 2; ++c)
-            {
-                Console.Write("class: " + c + " :\n");
-                for (int a = 0; a < Predictors; ++a)
-                {
-                    for (int i = 0; i < probabilityInClass[0][0].Length; ++i)
-                        Console.Write(probabilityInClass[c][a][i].ToString("F2") + "  ");
-
-                    Console.Write('\t');
-                }
-                Console.WriteLine("");
-            }
-
         }
     }
 }
